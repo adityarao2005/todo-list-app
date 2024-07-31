@@ -6,7 +6,7 @@ import { User } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
 interface ToDoItem {
     id: string;
@@ -52,21 +52,13 @@ export default function ToDos() {
     const { user } = useAuthContext()
     const router = useRouter()
 
-    if (!user) {
-        router.push("/");
-        return;
-    }
-
-    React.useEffect(() => {
-        fetchTask();
-    }, [])
 
     const initialItem: ToDoItem[] = [];
 
     const [tasks, dispatch] = useReducer(reducer, initialItem);
 
 
-    const fetchTask = async () => {
+    const fetchTask = useCallback(async () => {
 
         const response = await fetch('/api/todos', {
             method: "GET",
@@ -78,7 +70,7 @@ export default function ToDos() {
         const data = await response.json() as ToDoItem[];
 
         dispatch({ type: "FETCH", payload: data });
-    }
+    }, [user])
 
 
     const addTask = async () => {
@@ -137,10 +129,19 @@ export default function ToDos() {
         await fetchTask()
     }
 
+    React.useEffect(() => {
+        fetchTask();
+    }, [fetchTask])
+
+    if (!user) {
+        router.push("/");
+        return;
+    }
+
     return (
         <Card className="bg-black flex-1">
             <div className="bg-white p-10 m-10 flex-col rounded" style={{ width: "50vw" }}>
-                <h1 className="text-4xl font-bold text-center pb-3">To Do's Page</h1>
+                <h1 className="text-4xl font-bold text-center pb-3">To Do{"\'"}s Page</h1>
                 <div className="space-y-2">
                     <h2 className="text-2xl font-bold">Tasks</h2>
                     <button onClick={addTask} className="bg-blue-500 text-white px-2 py-1 font-bold rounded-lg">Add Task</button>

@@ -11,7 +11,7 @@ const nextConfig = {
                 destination: 'http://localhost:8080/hello'
             }
         ];
-    }
+    },
 };
 
 export default nextConfig;
